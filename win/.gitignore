@@ -1,0 +1,6 @@
+/.build
+/.dependence
+/.doc
+/.install
+/.Doxyfile
+/run_cmake.py
