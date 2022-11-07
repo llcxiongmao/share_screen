@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:columnCount="4"
+    android:padding="6dp"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/label_log"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_row="0"
+        android:layout_rowWeight="1"
+        android:layout_columnSpan="4"
+        android:scrollbars="vertical" />
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"
+        android:layout_columnSpan="4"
+        android:background="@color/line" />
+
+    <Button
+        android:id="@+id/but_setting"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="2"
+        android:layout_columnWeight="2"
+        android:layout_marginEnd="2dp"
+        android:text="@string/setting" />
+
+    <Button
+        android:id="@+id/but_copy_log"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="2"
+        android:layout_columnWeight="2"
+        android:text="@string/copy_log" />
+
+    <Button
+        android:id="@+id/but_start"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="2"
+        android:layout_columnWeight="2"
+        android:layout_marginEnd="2dp"
+        android:text="@string/but_start" />
+
+    <Button
+        android:id="@+id/but_stop"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="2"
+        android:layout_columnWeight="2"
+        android:layout_marginStart="2dp"
+        android:text="@string/but_stop" />
+
+</GridLayout>
