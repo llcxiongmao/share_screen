@@ -1,5 +1,5 @@
 # share screen(v1.0.0)
-this app inspire by [scrcpy](https://github.com/Genymobile/scrcpy), translate android screen to desktop window by tcp connection.
+this project inspire by [scrcpy](https://github.com/Genymobile/scrcpy), translate android screen to desktop window by tcp connection.
 also we have app in android instead of use adb.
 
 # Features
@@ -7,15 +7,41 @@ also we have app in android instead of use adb.
 - support hardware decode.
 - open source/clear/free.
 
+# Support Devices
+current test on follow devices:
+
+windows system:
+- windows 10 x64.
+
+android system:
+- HONOR 6x(android 8.0).
+- REDMI NOTE 10PRO(android 11.0).
+
+so, we assume the follows will be support:
+- windows 7 and up x64.
+- android 8.0 and up.
+
+i have no plan to support windows x86, i am a lttle busy in real life.
+but i have plan to support linux system.
+
 # How to use?
-- **if two device in same network**, for example: in the same wifi connection.
-    - exec `share_screen.exe`.
+- Download [share_screen_x64_v1.0.0.7z](https://github.com/llcxiongmao/share_screen/releases/download/v1.0.0/share_screen_x64_v1.0.0.7z) and unzip.
+    - install share_screen.apk to your phone.
+    - share_screen.exe is our desktop execution.
+- **if two device in same network**, for example: two device in the same wifi.
+    - run `share_screen.exe`.
     - open android app and click start button. here we go.
 - also, your can direct connect remote address:
 ```
 ; change 192.168.1.1 to your address
 share_screen.exe -ip=192.168.1.2
 ```
+
+**screenshot**:
+![](./doc/1.PNG)
+
+![](./doc/0.png)
+
 # Config options
 TODO
 
