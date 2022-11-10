@@ -46,7 +46,7 @@ void PtsThread::run() {
                 FrontThread::GetSingleton()->notifyPaintFrame(frame);
             }
         } catch (const std::exception& e) {
-            log::e() << e.what();
+            log::e() << "pts thread sync fail, " << e.what();
             mIsStop = true;
             close();
         }

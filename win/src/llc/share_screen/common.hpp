@@ -101,7 +101,7 @@ enum class Tag : uint32_t {
  * e.g.
  * @code
  * auto firstObj = log::i();
- * // bad, because firstObj already alive in this thread.
+ * // bad, because firstObj alive in this thread.
  * auto secondObj = log::i();
  * @endcode
  */
@@ -262,18 +262,34 @@ public:
         return uv_strerror_r(err, str, 32);
     }
 
+    /** constructor. */
+    Error() {}
+
     /**
      * constructor.
      *
-     * @param desc  any message.
-     * @param srcLoc use LLC_SRC_LOC as source location.
+     * @param desc message.
      */
-    Error(util::StringStream desc, util::StringView srcLoc) : mDesc(std::move(desc)) {
-        mDesc << ", source: " << srcLoc;
+    Error(util::StringStream desc) : mDesc(std::move(desc)) {}
+
+    /**
+     * constructor.
+     *
+     * @param desc message.
+     * @param throwLoc throw location, @see LLC_SRC_LOC.
+     */
+    Error(util::StringStream desc, util::StringView throwLoc) : mDesc(std::move(desc)) {
+        mDesc << ", throw location: " << throwLoc;
     }
 
     const char* what() const override {
         return mDesc.getInternalString().c_str();
+    }
+
+    template <typename T>
+    Error& operator<<(const T& v) {
+        mDesc << v;
+        return *this;
     }
 
 private:
@@ -355,28 +371,28 @@ constexpr util::StringView extract_fn_name(const char* str) {
         throw Error(util::StringStream() << __VA_ARGS__, LLC_SRC_LOC); \
     }
 
-#define THROW_IF_AV(...)                                                   \
-    {                                                                      \
-        int _avRes = __VA_ARGS__;                                          \
-        THROW_IF(!_avRes,                                                  \
-                 detail::extract_fn_name(#__VA_ARGS__)                     \
-                     << " fail, message: " << Error::GetAvString(_avRes)); \
+#define THROW_IF_AV(...)                                          \
+    {                                                             \
+        int _avRes = __VA_ARGS__;                                 \
+        THROW_IF(!_avRes,                                         \
+                 detail::extract_fn_name(#__VA_ARGS__)            \
+                     << " fail: " << Error::GetAvString(_avRes)); \
     }
 
-#define THROW_IF_UV(...)                                                   \
-    {                                                                      \
-        int _uvRes = __VA_ARGS__;                                          \
-        THROW_IF(!_uvRes,                                                  \
-                 detail::extract_fn_name(#__VA_ARGS__)                     \
-                     << " fail, message: " << Error::GetUvString(_uvRes)); \
+#define THROW_IF_UV(...)                                          \
+    {                                                             \
+        int _uvRes = __VA_ARGS__;                                 \
+        THROW_IF(!_uvRes,                                         \
+                 detail::extract_fn_name(#__VA_ARGS__)            \
+                     << " fail: " << Error::GetUvString(_uvRes)); \
     }
 
-#define THROW_IF_DX11(...)                                                 \
-    {                                                                      \
-        HRESULT _hr = __VA_ARGS__;                                         \
-        THROW_IF(_hr == S_OK,                                              \
-                 detail::extract_fn_name(#__VA_ARGS__)                     \
-                     << " fail, message: " << Error::GetWin32String(_hr)); \
+#define THROW_IF_DX11(...)                                        \
+    {                                                             \
+        HRESULT _hr = __VA_ARGS__;                                \
+        THROW_IF(_hr == S_OK,                                     \
+                 detail::extract_fn_name(#__VA_ARGS__)            \
+                     << " fail: " << Error::GetWin32String(_hr)); \
     }
 
 #define LLC_SHARE_SCREEN_VERSION_MAJOR 1

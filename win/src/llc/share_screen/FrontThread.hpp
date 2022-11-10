@@ -45,6 +45,10 @@ public:
     void loop();
 
 private:
+    /** unit test simulate options. */
+    static constexpr bool UT_FAIL_CREATE = false;
+    static constexpr bool UT_FAIL_PAINT = false;
+
     typedef std::chrono::high_resolution_clock clock;
 
     enum class MsgId : UINT {
@@ -57,7 +61,7 @@ private:
 
     LRESULT winProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-    void handleMessage(const MSG& msg);
+    void onPaint(const MSG& msg);
 
 private:
     bool mIsStop = false;
@@ -67,6 +71,7 @@ private:
     HWND mHwnd = 0;
     bool mIsWinShow = false;
     std::unique_ptr<Render> mRender;
+    util::StringStream mWinTitle;
     clock::time_point mFpsTp;
     uint32_t mFps = 0;
 };

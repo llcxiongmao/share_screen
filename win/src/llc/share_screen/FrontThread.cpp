@@ -22,8 +22,7 @@ FrontThread::FrontThread() {
         wc.lpszMenuName = NULL;
         wc.lpszClassName = "llc_share_screen";
         wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
-        THROW_IF(RegisterClassExA(&wc),
-                 "RegisterClassExA fail, message: " << Error::GetWin32String());
+        THROW_IF(RegisterClassExA(&wc), "RegisterClassExA fail: " << Error::GetWin32String());
         mHwnd = CreateWindowExA(WS_EX_CLIENTEDGE,
                                 "llc_share_screen",
                                 "share_screen",
@@ -36,7 +35,7 @@ FrontThread::FrontThread() {
                                 NULL,
                                 hinstance,
                                 NULL);
-        THROW_IF(mHwnd, "CreateWindowExA fail, message: " << Error::GetWin32String());
+        THROW_IF(mHwnd, "CreateWindowExA fail: " << Error::GetWin32String());
 
         if (Config::GetSingleton()->useGlRender) {
             mRender = std::make_unique<GlRender>();
@@ -50,9 +49,11 @@ FrontThread::FrontThread() {
                 mRender = std::make_unique<GlRender>();
             }
         }
-    } catch (...) {
+
+        THROW_IF(!UT_FAIL_CREATE, "unit test");
+    } catch (const std::exception& e) {
         this->~FrontThread();
-        throw;
+        throw Error() << "front thread create fail, " << e.what();
     }
 }
 
@@ -70,7 +71,13 @@ void FrontThread::loop() {
     while (GetMessageA(&msg, NULL, 0, 0) > 0) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
-        handleMessage(msg);
+        switch ((MsgId)msg.message) {
+            case MsgId::PAINT:
+                onPaint(msg);
+                break;
+            default:
+                break;
+        }
     }
 }
 
@@ -91,41 +98,34 @@ LRESULT FrontThread::winProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
     return 0;
 }
 
-void FrontThread::handleMessage(const MSG& msg) {
+void FrontThread::onPaint(const MSG& msg) {
+    std::unique_ptr<PaintFrame> frame((PaintFrame*)msg.lParam);
+
+    if (mIsStop)
+        return;
+
     try {
-        util::StringStream winTitle;
-        switch ((MsgId)msg.message) {
-            case MsgId::PAINT: {
-                std::unique_ptr<PaintFrame> frame((PaintFrame*)msg.lParam);
+        if (!mIsWinShow) {
+            ShowWindow(mHwnd, SW_MAXIMIZE);
+            mIsWinShow = true;
+        }
 
-                if (mIsStop)
-                    break;
+        mRender->paint(frame.get());
+        THROW_IF(!UT_FAIL_PAINT, "unit test");
+        DecodeThread::GetSingleton()->notifyRecyclePaintFrame(frame);
 
-                if (!mIsWinShow) {
-                    ShowWindow(mHwnd, SW_MAXIMIZE);
-                    mIsWinShow = true;
-                }
-
-                mRender->paint(frame.get());
-                DecodeThread::GetSingleton()->notifyNewFreePaintFrame(frame);
-
-                ++mFps;
-                clock::time_point nowTp = clock::now();
-                if (nowTp - mFpsTp > std::chrono::seconds(1)) {
-                    winTitle.clear();
-                    winTitle << "FPS = " << mFps;
-                    SetWindowTextA(mHwnd, winTitle.getInternalString().c_str());
-                    mFpsTp = nowTp;
-                    mFps = 0;
-                }
-                break;
-            }
-            default:
-                break;
+        ++mFps;
+        clock::time_point nowTp = clock::now();
+        if (nowTp - mFpsTp > std::chrono::seconds(1)) {
+            mWinTitle.clear();
+            mWinTitle << "FPS = " << mFps;
+            SetWindowTextA(mHwnd, mWinTitle.getInternalString().c_str());
+            mFpsTp = nowTp;
+            mFps = 0;
         }
     } catch (const std::exception& e) {
-        log::e() << e.what();
-        mIsStop = false;
+        log::e() << "front thread paint fail, " << e.what();
+        mIsStop = true;
         close();
     }
 }

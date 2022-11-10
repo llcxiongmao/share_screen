@@ -23,6 +23,9 @@ import java.util.concurrent.ExecutionException;
 
 /** back thread, handle receive mediacodec result. */
 public class BackThread {
+    /** unit test simulate options. */
+    private static final boolean UT_FAIL_CODEC_CREATE = false;
+
     private static BackThread sSingleton;
 
     public static BackThread GetSingleton() {
@@ -74,7 +77,7 @@ public class BackThread {
         // wait handler setup.
         try {
             guard.get();
-        } catch (ExecutionException | InterruptedException e) {
+        } catch (Exception e) {
             throw new RuntimeException("wtf");
         }
     }
@@ -85,8 +88,8 @@ public class BackThread {
      * @param frame frame to recycle.
      * @throws Error if this closed, see {@link #close()}.
      */
-    public void notifyNewFreeFrame(Frame frame) throws Error {
-        notify(MsgId.NEW_FREE_FRAME, frame);
+    public void notifyRecycleFrame(Frame frame) throws Error {
+        notify(MsgId.RECYCLE_FRAME, frame);
     }
 
     /**
@@ -111,7 +114,7 @@ public class BackThread {
     public int[] join() {
         try {
             mThread.join();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             throw new AssertionError("wtf");
         }
         return new int[] {mFrameSummary, mFreeFrames.size()};
@@ -131,8 +134,10 @@ public class BackThread {
             case CONNECTED:
                 try {
                     mCodec = MediaCodec.createEncoderByType("video/avc");
-                } catch (IOException e) {
-                    FrontThread.GetSingleton().notifyErrLog("create encode codec fail: "
+                    if (UT_FAIL_CODEC_CREATE)
+                        throw new IOException("unit test");
+                } catch (Exception e) {
+                    FrontThread.GetSingleton().notifyErrLog("back thread create encode codec fail, "
                                                             + e.getMessage());
                     close();
                     break;
@@ -158,7 +163,7 @@ public class BackThread {
                 mCodec.setCallback(new CodecCallback(), mHandler);
                 mCodec.start();
                 break;
-            case NEW_FREE_FRAME: {
+            case RECYCLE_FRAME: {
                 Frame frame = (Frame) msg.obj;
                 mCodec.releaseOutputBuffer(frame.index, false);
                 mFreeFrames.add(frame);
@@ -205,7 +210,7 @@ public class BackThread {
                                             @NonNull MediaCodec.BufferInfo info) {
             if (Config.GetSingleton().debug_print_encode)
                 FrontThread.GetSingleton().notifyInfoLog(
-                    "encode output frame, index: " + index + ", flags: " + info.flags
+                    "encode frame, index: " + index + ", flags: " + info.flags
                     + ", size: " + info.size + ", pts: " + info.presentationTimeUs);
 
             long pts = info.presentationTimeUs;
@@ -235,19 +240,19 @@ public class BackThread {
 
         @Override
         public void onError(@NonNull MediaCodec codec, @NonNull MediaCodec.CodecException e) {
-            FrontThread.GetSingleton().notifyErrLog("codec fail: " + e.getMessage());
+            FrontThread.GetSingleton().notifyErrLog("back thread encode fail, " + e.getMessage());
             close();
         }
 
         @Override
         public void onOutputFormatChanged(@NonNull MediaCodec codec, @NonNull MediaFormat format) {
-            FrontThread.GetSingleton().notifyInfoLog("codec format change: " + format);
+            FrontThread.GetSingleton().notifyInfoLog("encode format change: " + format);
         }
     }
 
     private enum MsgId {
         CONNECTED,
-        NEW_FREE_FRAME;
+        RECYCLE_FRAME;
 
         private static final MsgId[] sAll = MsgId.values();
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(llc_share_screen)
+project(share_screen)
 
 if (NOT MSVC)
 message(FATAL_ERROR "windows platform only")
@@ -60,12 +60,12 @@ set(LLC_SHARE_SCREEN_SRC
     "./src/llc/share_screen/PtsThread.hpp"
     "./src/llc/share_screen/PtsThread.cpp"
     "./src/llc/share_screen/main.cpp")
-add_executable(llc_share_screen ${LLC_SHARE_SCREEN_SRC})
-target_include_directories(llc_share_screen PRIVATE ${GL_INCLUDE_DIR} "./src")
-target_link_libraries(llc_share_screen PRIVATE uv avcodec avutil swresample opengl32 mfuuid strmiids ole32 user32 winmm d3d11 d3dcompiler)
-target_precompile_headers(llc_share_screen PRIVATE "./src/llc/share_screen/pch.hpp")
-set_target_properties(llc_share_screen PROPERTIES DEBUG_POSTFIX "_d")
+add_executable(share_screen ${LLC_SHARE_SCREEN_SRC})
+target_include_directories(share_screen PRIVATE ${GL_INCLUDE_DIR} "./src")
+target_link_libraries(share_screen PRIVATE uv avcodec avutil swresample opengl32 mfuuid strmiids ole32 user32 winmm d3d11 d3dcompiler)
+target_precompile_headers(share_screen PRIVATE "./src/llc/share_screen/pch.hpp")
+set_target_properties(share_screen PROPERTIES DEBUG_POSTFIX "_d")
 if (DEFINED VS_DEBUG_DIR)
-    set_target_properties(llc_share_screen PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${VS_DEBUG_DIR})
+    set_target_properties(share_screen PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${VS_DEBUG_DIR})
 endif()
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/src" FILES ${LLC_SHARE_SCREEN_SRC})

@@ -47,16 +47,16 @@ static std::unique_ptr<Config> parse_config(int argc, char* argv[]) {
     }
 
     // clang-format off
-    log::i() << "current config:\nip: " << (cfg->ip.empty() ? "empty" : cfg->ip)
-             << "\nport: " << cfg->port 
-             << "\nbroadcast port: " << cfg->broadcastPort
-             << "\nimmedlately paint: " << util::fmt_bool(cfg->immediatelyPaint)
-             << "\ndisable hardware accel: " << util::fmt_bool(cfg->disableHwaccel)
-             << "\ndisable high precision time: " << util::fmt_bool(cfg->disableHighPrecisionTime)
-             << "\nuse gl render: " << util::fmt_bool(cfg->useGlRender)
-             << "\ndebug print net: " << util::fmt_bool(cfg->debugPrintNet)
-             << "\ndebug print pts: " << util::fmt_bool(cfg->debugPrintPts)
-             << "\ndebug print decode: " << util::fmt_bool(cfg->debugPrintDecode);
+    log::i() << "current config:\n- ip: " << (cfg->ip.empty() ? "empty" : cfg->ip)
+             << "\n- port: " << cfg->port 
+             << "\n- broadcast port: " << cfg->broadcastPort
+             << "\n- immedlately paint: " << util::fmt_bool(cfg->immediatelyPaint)
+             << "\n- disable hardware accel: " << util::fmt_bool(cfg->disableHwaccel)
+             << "\n- disable high precision time: " << util::fmt_bool(cfg->disableHighPrecisionTime)
+             << "\n- use gl render: " << util::fmt_bool(cfg->useGlRender)
+             << "\n- debug print net: " << util::fmt_bool(cfg->debugPrintNet)
+             << "\n- debug print pts: " << util::fmt_bool(cfg->debugPrintPts)
+             << "\n- debug print decode: " << util::fmt_bool(cfg->debugPrintDecode);
     // clang-format on
     return cfg;
 }
@@ -102,7 +102,6 @@ int main(int argc, char* argv[]) {
             ptsThread = std::make_unique<PtsThread>();
         decodeThread = std::make_unique<DecodeThread>();
         backThread = std::make_unique<BackThread>();
-        // THROW_IF(0, "unit test");
     } catch (const std::exception& e) {
         log::e() << e.what();
         frontThread->close();

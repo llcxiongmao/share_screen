@@ -15,7 +15,7 @@ public:
      * @param frame frame to recycle.
      * @throws Error if this closed.
      */
-    void notifyNewFreePaintFrame(std::unique_ptr<PaintFrame>& frame) {
+    void notifyRecyclePaintFrame(std::unique_ptr<PaintFrame>& frame) {
         av_frame_unref(frame->decodeFrame.get());
         THROW_IF(mFreePaintFrames.pushEx(frame), "decode thread already closed");
     }
@@ -30,7 +30,7 @@ public:
         THROW_IF(mPendingFrames.pushEx(frame), "decode thread already closed");
     }
 
-    /** close thread, after call notifyNewFreePaintFrame notifyNewFrame will throw Error.  */
+    /** close thread, after call notifyRecyclePaintFrame notifyNewFrame will throw Error.  */
     void close() {
         mFreePaintFrames.close();
         mPendingFrames.close();
@@ -42,11 +42,15 @@ public:
     }
 
 private:
+    /** unit test simulazte options. */
+    static constexpr bool UT_FAIL_INIT_RESOURCES = false;
+    static constexpr bool UT_FAIL_DECODE = false;
+
     static constexpr int PAINT_FRAME_POOL_SIZE = 20;
 
     typedef std::chrono::high_resolution_clock clock;
 
-    void init();
+    void initResources();
 
     void run();
 
@@ -64,6 +68,9 @@ private:
     /** pending frames to decode. */
     BlockingQueue<std::unique_ptr<NetFrame>> mPendingFrames;
     std::unique_ptr<std::thread> mThread;
+
+    /** keep net frame alive, because back thread may access. */
+    std::vector<std::unique_ptr<NetFrame>> mDumpNetFrames;
 };
 }  // namespace share_screen
 }  // namespace llc
