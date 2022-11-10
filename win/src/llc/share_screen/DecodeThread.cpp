@@ -11,7 +11,7 @@ DecodeThread::DecodeThread() {
     mThread = std::make_unique<std::thread>([this]() { run(); });
 }
 
-void DecodeThread::init() {
+void DecodeThread::initResources() {
     for (int i = 0; i < PAINT_FRAME_POOL_SIZE; ++i) {
         mFreePaintFrames.push(std::make_unique<PaintFrame>());
     }
@@ -50,36 +50,38 @@ void DecodeThread::init() {
     }
 
     THROW_IF_AV(avcodec_open2(mCodecCtx.get(), mCodec, NULL));
+
+    THROW_IF(!UT_FAIL_INIT_RESOURCES, "unit test");
 }
 
 void DecodeThread::run() {
     log::i() << "decode thread run";
 
     try {
-        init();
+        initResources();
     } catch (const std::exception& e) {
-        log::e() << e.what();
+        log::e() << "decode thread init resources fail, " << e.what();
         close();
     }
 
     clock::time_point now0;
     clock::time_point now1;
+    std::unique_ptr<NetFrame> src;
+    std::unique_ptr<PaintFrame> dst;
     while (true) {
-        std::unique_ptr<NetFrame> src;
         if (!mPendingFrames.pop(src))
             break;
 
-        std::unique_ptr<PaintFrame> dst;
         if (!mFreePaintFrames.pop(dst))
             break;
 
-        try {
-            if (mIsStop) {
-                src = nullptr;
-                dst = nullptr;
-                continue;
-            }
+        if (mIsStop) {
+            mDumpNetFrames.push_back(std::move(src));
+            dst = nullptr;
+            continue;
+        }
 
+        try {
             dst->pts = src->pts;
 
             AVPacket* packet = nullptr;
@@ -96,13 +98,15 @@ void DecodeThread::run() {
             }
 
             if (dst->pts == -1) {
-                notifyNewFreePaintFrame(dst);
+                notifyRecyclePaintFrame(dst);
             } else {
                 if (Config::GetSingleton()->debugPrintDecode)
                     now0 = clock::now();
 
                 THROW_IF_AV(avcodec_send_packet(mCodecCtx.get(), packet));
                 THROW_IF_AV(avcodec_receive_frame(mCodecCtx.get(), dst->decodeFrame.get()));
+
+                THROW_IF(!UT_FAIL_DECODE, "unit test");
 
                 if (Config::GetSingleton()->debugPrintDecode) {
                     now1 = clock::now();
@@ -117,13 +121,18 @@ void DecodeThread::run() {
                     FrontThread::GetSingleton()->notifyPaintFrame(dst);
             }
 
-            BackThread::GetSingleton()->notifyNewFreeNetFrame(src);
+            BackThread::GetSingleton()->notifyRecycleNetFrame(src);
         } catch (const std::exception& e) {
-            log::e() << e.what();
+            log::e() << "decode thread decode fail, " << e.what();
             mIsStop = true;
             close();
         }
+        if (src)
+            mDumpNetFrames.push_back(std::move(src));
     }
+
+    if (src)
+        mDumpNetFrames.push_back(std::move(src));
 
     FrontThread::GetSingleton()->close();
 

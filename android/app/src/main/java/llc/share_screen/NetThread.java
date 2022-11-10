@@ -23,7 +23,15 @@ import java.util.Set;
 
 /** net thread, handle net broadcast/read/write. */
 public class NetThread {
+    /** unit test simulate options. */
+    private static final boolean UT_FAIL_CREATE = false;
+    private static final boolean UT_FAIL_INIT_RESOURCES = false;
+    private static final boolean UT_FAIL_READ = false;
+    private static final boolean UT_FAIL_WRITE = false;
+    private static final boolean UT_FAIL_ACCEPT = false;
+
     private static NetThread sSingleton;
+
     public static NetThread GetSingleton() {
         return sSingleton;
     }
@@ -62,11 +70,18 @@ public class NetThread {
     private SelectionKey mClientKey;
 
     /** create and start thread. */
-    NetThread() throws IOException {
+    NetThread() throws Error {
         if (sSingleton != null)
             throw new AssertionError("bug");
 
-        mSelector = Selector.open();
+        try {
+            mSelector = Selector.open();
+            if (UT_FAIL_CREATE)
+                throw new IOException("unit test");
+        } catch (Exception e) {
+            throw new Error("net thread create fail, " + e.getMessage());
+        }
+
         mThread = new Thread(this::run);
         mThread.start();
     }
@@ -106,7 +121,7 @@ public class NetThread {
     public int join() {
         try {
             mThread.join();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             throw new AssertionError("wtf");
         }
         int rest = mPendingFrames.size();
@@ -119,9 +134,10 @@ public class NetThread {
         FrontThread.GetSingleton().notifyInfoLog("net thread run");
 
         try {
-            init();
+            initResources();
         } catch (Exception e) {
-            FrontThread.GetSingleton().notifyErrLog(e.getMessage());
+            FrontThread.GetSingleton().notifyErrLog("net thread init resources fail, "
+                                                    + e.getMessage());
             close();
         }
 
@@ -199,7 +215,7 @@ public class NetThread {
         FrontThread.GetSingleton().notifyInfoLog("net thread exit");
     }
 
-    private void init() throws IOException, Error {
+    private void initResources() throws IOException, Error {
         mBroadcastData.put("1314".getBytes(StandardCharsets.UTF_8));
         mBroadcastAddress =
             new InetSocketAddress("255.255.255.255", Config.GetSingleton().broadcast_port);
@@ -239,7 +255,7 @@ public class NetThread {
                     k = acceptChannel.register(mSelector, SelectionKey.OP_ACCEPT);
                     mAcceptKeys.add(k);
                     break;
-                } catch (IOException e) {
+                } catch (Exception e) {
                     FrontThread.GetSingleton().notifyInfoLog("get local ip fail: " + e.getMessage()
                                                              + ", ip: " + ip);
                     if (broadcastChannel != null)
@@ -250,9 +266,11 @@ public class NetThread {
             }
         }
 
-        if (mBroadcastKeys.isEmpty()) {
+        if (mBroadcastKeys.isEmpty())
             throw new Error("not found any local ip usable");
-        }
+
+        if (UT_FAIL_INIT_RESOURCES)
+            throw new Error("unit test");
     }
 
     private Frame popFrame() {
@@ -261,17 +279,20 @@ public class NetThread {
         }
     }
 
-    private void onClientRead() throws IOException {
+    private void onClientRead() throws Error {
         try {
             SocketChannel c = (SocketChannel) mClientKey.channel();
             mClientReadBuffer.position(0);
             c.read(mClientReadBuffer);
-        } catch (IOException e) {
-            throw new IOException("read fail: " + e.getMessage());
+
+            if (UT_FAIL_READ)
+                throw new Error("unit test");
+        } catch (Exception e) {
+            throw new Error("net thread read fail, " + e.getMessage());
         }
     }
 
-    private void onClientWrite() throws IOException, Error {
+    private void onClientWrite() throws Error {
         if (mCurrentFrame == null)
             throw new AssertionError("bug");
 
@@ -286,14 +307,17 @@ public class NetThread {
             if (mCurrentFrame.bodyBuffer.hasRemaining())
                 return;
 
-            BackThread.GetSingleton().notifyNewFreeFrame(mCurrentFrame);
+            BackThread.GetSingleton().notifyRecycleFrame(mCurrentFrame);
 
             mCurrentFrame = popFrame();
             // stop write if no frame.
             if (mCurrentFrame == null)
                 mClientKey.interestOps(SelectionKey.OP_READ);
-        } catch (IOException e) {
-            throw new IOException("write fail: " + e.getMessage());
+
+            if (UT_FAIL_WRITE)
+                throw new Error("unit test");
+        } catch (Exception e) {
+            throw new Error("net thread write fail, " + e.getMessage());
         }
     }
 
@@ -309,22 +333,33 @@ public class NetThread {
             c.send(mBroadcastData, mBroadcastAddress);
             FrontThread.GetSingleton().notifyInfoLog("broadcast success, local ip: "
                                                      + c.socket().getLocalAddress());
-        } catch (IOException e) {
-            FrontThread.GetSingleton().notifyInfoLog("broadcast fail: " + e.getMessage()
+        } catch (Exception e) {
+            FrontThread.GetSingleton().notifyInfoLog("broadcast fail, " + e.getMessage()
                                                      + ", local ip: "
                                                      + c.socket().getLocalAddress());
         }
     }
 
-    private void onAccept(SelectionKey k) throws IOException, Error {
+    private void onAccept(SelectionKey k) throws Error {
         if (!k.isValid())
             return;
 
-        k.interestOps(0);
+        ServerSocketChannel serverChannel = (ServerSocketChannel) k.channel();
 
-        ServerSocketChannel c = (ServerSocketChannel) k.channel();
+        SocketChannel clientChannel;
         try {
-            SocketChannel clientChannel = c.accept();
+            clientChannel = serverChannel.accept();
+        } catch (Exception e) {
+            FrontThread.GetSingleton().notifyErrLog(
+                "accept fail, " + e.getMessage()
+                + ", local ip: " + serverChannel.socket().getLocalSocketAddress());
+            return;
+        }
+
+        try {
+            if (UT_FAIL_ACCEPT)
+                throw new Error("unit test");
+
             clientChannel.configureBlocking(false);
             mClientKey = clientChannel.register(mSelector, SelectionKey.OP_READ);
             FrontThread.GetSingleton().notifyInfoLog(
@@ -339,19 +374,20 @@ public class NetThread {
                 QuietClose(kk.channel());
             }
             mAcceptKeys.clear();
-        } catch (IOException e) {
-            FrontThread.GetSingleton().notifyErrLog("accept fail: " + e.getMessage()
-                                                    + ", local ip: " + c.getLocalAddress());
-        }
 
-        if (mClientKey != null)
-            BackThread.GetSingleton().notifyConnected();
+            if (mClientKey != null)
+                BackThread.GetSingleton().notifyConnected();
+        } catch (Exception e) {
+            if (clientChannel != null)
+                QuietClose(clientChannel);
+            throw new Error("net thread accept fail, " + e.getMessage());
+        }
     }
 
     private static void QuietClose(Closeable obj) {
         try {
             obj.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             // wtf.
         }
     }

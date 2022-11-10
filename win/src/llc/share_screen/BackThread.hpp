@@ -15,7 +15,7 @@ public:
      * @param frame frame to recycle.
      * @throws Error if this closed, see #close.
      */
-    void notifyNewFreeNetFrame(std::unique_ptr<NetFrame>& frame) {
+    void notifyRecycleNetFrame(std::unique_ptr<NetFrame>& frame) {
         std::lock_guard<std::mutex> lock(mCloseLock);
         THROW_IF(!mIsClose, "back thread already closed");
         frame->recycling = true;
@@ -23,7 +23,7 @@ public:
         frame.release();
     }
 
-    /** close thread, after call notifyNewFreeNetFrame will throw Error. */
+    /** close thread, after call notifyRecycleNetFrame will throw Error. */
     void close() {
         std::lock_guard<std::mutex> lock(mCloseLock);
         if (!mIsClose) {
@@ -38,6 +38,16 @@ public:
     }
 
 private:
+    /** unit test simulazte options. */
+    static constexpr bool UT_FAIL_CREATE = false;
+    static constexpr bool UT_FAIL_INIT_RESOURCES = false;
+    static constexpr bool UT_FAIL_RECYCLE_NET_FRAME = false;
+    static constexpr bool UT_FAIL_WRITE_TIMER = false;
+    static constexpr bool UT_FAIL_BROADCAST_READ = false;
+    static constexpr bool UT_FAIL_CONNECT = false;
+    static constexpr bool UT_FAIL_READ = false;
+    static constexpr bool UT_FAIL_WRITE = false;
+
     enum class ReadStage {
         HEAD,
         BODY,
@@ -79,7 +89,7 @@ private:
 
     void readAlloc(uv_handle_t* handle, size_t suggestedSize, uv_buf_t* buf);
 
-    void onNetFrameAsync(uv_async_t* handle);
+    void onRecycleNetFrame(uv_async_t* handle);
 
     void onClose(uv_async_t* handle);
 
@@ -96,7 +106,7 @@ private:
 
     void onWrite(uv_write_t* req, int status);
 
-    void init();
+    void initResources();
 
     void run();
 
@@ -104,6 +114,8 @@ private:
     std::vector<std::unique_ptr<NetFrame>> mFreeNetFrames;
     std::mutex mCloseLock;
     bool mIsClose = false;
+
+    bool mIsStop = false;
 
     uv_connect_t mConnectReq = {};
     uv_write_t mWriteReq = {};

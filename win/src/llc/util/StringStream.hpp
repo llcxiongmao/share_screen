@@ -127,8 +127,7 @@ namespace detail {
 struct FmtBool {
     bool b = {};
 
-    template <typename Stream>
-    friend Stream& operator<<(Stream& stream, const FmtBool& v) {
+    friend StringStream& operator<<(StringStream& stream, const FmtBool& v) {
         if (v.b)
             stream << "true";
         else

@@ -25,8 +25,8 @@ BackThread::BackThread() {
         }));
         pClose = &mClose;
 
-        // THROW_IF(0, "unit test");
-    } catch (...) {
+        THROW_IF(!UT_FAIL_CREATE, "unit test");
+    } catch (const std::exception& e) {
         if (pLoop) {
             CLOSE_UV_HANDLE(pClose, nullptr);
             int uvRes = 0;
@@ -35,7 +35,7 @@ BackThread::BackThread() {
             uvRes = uv_loop_close(pLoop);
             assert(!uvRes);
         }
-        throw;
+        throw Error() << "back thread create fail, " << e.what();
     }
 
     mThread = std::make_unique<std::thread>([this]() { run(); });
@@ -50,7 +50,10 @@ std::unique_ptr<NetFrame> BackThread::obtainNetFrame() {
 }
 
 void BackThread::stop() {
-    uv_stop(pLoop);
+    if (!mIsStop) {
+        uv_stop(pLoop);
+        mIsStop = true;
+    }
 }
 
 void BackThread::readAlloc(uv_handle_t* handle, size_t suggestedSize, uv_buf_t* buf) {
@@ -65,17 +68,14 @@ void BackThread::readAlloc(uv_handle_t* handle, size_t suggestedSize, uv_buf_t* 
     }
 }
 
-void BackThread::onNetFrameAsync(uv_async_t* handle) {
+void BackThread::onRecycleNetFrame(uv_async_t* handle) {
     std::unique_ptr<NetFrame> frame((NetFrame*)handle->data);
     frame->recycling = false;
     av_packet_unref(frame->body.get());
-    if (mCurrentFrame || pLoop->stop_flag) {
+    if (mIsStop || mCurrentFrame) {
         mFreeNetFrames.push_back(std::move(frame));
         return;
     }
-
-    if (pLoop->stop_flag)
-        return;
 
     try {
         mCurrentFrame = std::move(frame);
@@ -91,8 +91,10 @@ void BackThread::onNetFrameAsync(uv_async_t* handle) {
                                   [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
                                       BackThread::GetSingleton()->onRead(stream, nread, buf);
                                   }));
+
+        THROW_IF(!UT_FAIL_RECYCLE_NET_FRAME, "unit test");
     } catch (const std::exception& e) {
-        log::e() << e.what();
+        log::e() << "back thread recycle net frame fail, " << e.what();
         stop();
     }
 }
@@ -102,7 +104,7 @@ void BackThread::onClose(uv_async_t* handle) {
 }
 
 void BackThread::onConnectTimeout(uv_timer_t* handle) {
-    if (pLoop->stop_flag)
+    if (mIsStop)
         return;
 
     if (pClientSocket && pClientSocket->data) {
@@ -115,7 +117,7 @@ void BackThread::onConnectTimeout(uv_timer_t* handle) {
 }
 
 void BackThread::onWriteTimer(uv_timer_t* handle) {
-    if (pLoop->stop_flag)
+    if (mIsStop)
         return;
 
     try {
@@ -125,19 +127,21 @@ void BackThread::onWriteTimer(uv_timer_t* handle) {
             &WRITE_BUF,
             1,
             [](uv_write_t* req, int status) { BackThread::GetSingleton()->onWrite(req, status); }));
+
+        THROW_IF(!UT_FAIL_WRITE_TIMER, "unit test");
     } catch (const std::exception& e) {
-        log::e() << e.what();
+        log::e() << "back thread write fail, " << e.what();
         stop();
     }
 }
 
 void BackThread::onBroadcastRead(
     uv_udp_t* handle, ssize_t nread, const uv_buf_t* buf, const sockaddr* addr, unsigned flags) {
-    if (pLoop->stop_flag)
+    if (mIsStop)
         return;
 
     try {
-        THROW_IF(nread >= 0, "broadcast read fail, message: " << Error::GetUvString(nread));
+        THROW_IF(nread >= 0, Error::GetUvString(nread));
 
         if (nread == 4 && strncmp(buf->base, "1314", 4) == 0) {
             // close broadcast read anyway.
@@ -162,18 +166,20 @@ void BackThread::onBroadcastRead(
                                            BackThread::GetSingleton()->onConnect(req, status);
                                        }));
         }
+
+        THROW_IF(!UT_FAIL_BROADCAST_READ, "unit test");
     } catch (const std::exception& e) {
-        log::e() << e.what();
+        log::e() << "back thread broadcast read fail, " << e.what();
         stop();
     }
 }
 
 void BackThread::onConnect(uv_connect_t* req, int status) {
-    if (pLoop->stop_flag)
+    if (mIsStop)
         return;
 
     try {
-        THROW_IF(!status, "connect fail, message: " << Error::GetUvString(status));
+        THROW_IF(!status, Error::GetUvString(status));
 
         log::i() << "connect success";
 
@@ -197,21 +203,23 @@ void BackThread::onConnect(uv_connect_t* req, int status) {
             &WRITE_BUF,
             1,
             [](uv_write_t* req, int status) { BackThread::GetSingleton()->onWrite(req, status); }));
+
+        THROW_IF(!UT_FAIL_CONNECT, "unit test");
     } catch (const std::exception& e) {
-        log::e() << e.what();
+        log::e() << "back thread connect fail, " << e.what();
         stop();
     }
 }
 
 void BackThread::onRead(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
-    if (pLoop->stop_flag)
+    if (mIsStop)
         return;
 
     try {
         if (nread == 0)
             return;
 
-        THROW_IF(nread >= 0, "read fail, message: " << Error::GetUvString(nread));
+        THROW_IF(nread >= 0, Error::GetUvString(nread));
 
         mReadSize += nread;
         if (mReadStage == ReadStage::HEAD) {
@@ -245,18 +253,20 @@ void BackThread::onRead(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
                 }
             }
         }
+
+        THROW_IF(!UT_FAIL_READ, "unit test");
     } catch (const std::exception& e) {
-        log::e() << e.what();
+        log::e() << "back thread read fail, " << e.what();
         stop();
     }
 }
 
 void BackThread::onWrite(uv_write_t* req, int status) {
-    if (pLoop->stop_flag)
+    if (mIsStop)
         return;
 
     try {
-        THROW_IF(!status, "write fail, message: " << Error::GetUvString(status));
+        THROW_IF(!status, Error::GetUvString(status));
 
         if (Config::GetSingleton()->debugPrintNet)
             log::i() << "write 1 byte";
@@ -265,16 +275,18 @@ void BackThread::onWrite(uv_write_t* req, int status) {
             [](uv_timer_t* handle) { BackThread::GetSingleton()->onWriteTimer(handle); },
             2000,
             0));
+
+        THROW_IF(!UT_FAIL_WRITE, "unit test");
     } catch (const std::exception& e) {
-        log::e() << e.what();
+        log::e() << "back thread write fail, " << e.what();
         stop();
     }
 }
 
-void BackThread::init() {
+void BackThread::initResources() {
     for (int i = 0; i < NET_FRAME_POOL_SIZE; ++i) {
         THROW_IF_UV(uv_async_init(pLoop, &mNetFrameAsyncs[i], [](uv_async_t* handle) {
-            BackThread::GetSingleton()->onNetFrameAsync(handle);
+            BackThread::GetSingleton()->onRecycleNetFrame(handle);
         }));
         pNetFrameAsyncs[i] = &mNetFrameAsyncs[i];
     }
@@ -336,16 +348,16 @@ void BackThread::init() {
         30000,
         0));
 
-    // throw Error("unit test", LLC_SRC_LOC);
+    THROW_IF(!UT_FAIL_INIT_RESOURCES, "unit test");
 }
 
 void BackThread::run() {
     log::i() << "back thread run";
 
     try {
-        init();
+        initResources();
     } catch (const std::exception& e) {
-        log::e() << e.what();
+        log::e() << "back thread init resources fail, " << e.what();
         stop();
     }
 
@@ -364,9 +376,10 @@ void BackThread::run() {
         for (int i = 0; i < NET_FRAME_POOL_SIZE; ++i) {
             CLOSE_UV_HANDLE(pNetFrameAsyncs[i], [](uv_handle_t* handle) {
                 NetFrame* frame = (NetFrame*)handle->data;
-                // if frame is recycling, we should release it at close, avoid leak.
-                if (frame->recycling)
-                    std::default_delete<NetFrame>()(frame);
+                // if frame is recycling, we should recycle it at close, avoid leak.
+                if (frame->recycling) {
+                    BackThread::GetSingleton()->onRecycleNetFrame((uv_async_t*)handle);
+                }
             });
         }
     }

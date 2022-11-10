@@ -11,7 +11,7 @@ namespace share_screen {
 GlRender::GlRender() : Render(RenderType::GL) {
     try {
         mDc = GetDC(FrontThread::GetSingleton()->getHwnd());
-        THROW_IF(mDc, "GetDC fail, message: " << Error::GetWin32String());
+        THROW_IF(mDc, "GetDC fail: " << Error::GetWin32String());
 
         PIXELFORMATDESCRIPTOR pfd = {};
         memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
@@ -22,14 +22,13 @@ GlRender::GlRender() : Render(RenderType::GL) {
         pfd.cColorBits = 32;
         pfd.iLayerType = PFD_MAIN_PLANE;
         int pixelFormat = ChoosePixelFormat(mDc, &pfd);
-        THROW_IF(pixelFormat, "ChoosePixelFormat fail, message: " << Error::GetWin32String());
+        THROW_IF(pixelFormat, "ChoosePixelFormat fail: " << Error::GetWin32String());
         THROW_IF(SetPixelFormat(mDc, pixelFormat, &pfd),
-                 "SetPixelFormat fail, message: " << Error::GetWin32String());
+                 "SetPixelFormat fail: " << Error::GetWin32String());
 
         HGLRC rc_1_0 = wglCreateContext(mDc);
-        THROW_IF(rc_1_0, "wglCreateContext fail, message: " << Error::GetWin32String());
-        THROW_IF(wglMakeCurrent(mDc, rc_1_0),
-                 "wglMakeCurrent fail, message: " << Error::GetWin32String());
+        THROW_IF(rc_1_0, "wglCreateContext fail: " << Error::GetWin32String());
+        THROW_IF(wglMakeCurrent(mDc, rc_1_0), "wglMakeCurrent fail: " << Error::GetWin32String());
 
         QUERY_GL_FN(wglGetExtensionsStringEXT, "wglGetExtensionsStringEXT");
         QUERY_GL_FN(wglCreateContextAttribsARB, "wglCreateContextAttribsARB");
@@ -66,12 +65,9 @@ GlRender::GlRender() : Render(RenderType::GL) {
 
         mRc = wglCreateContextAttribsARB(mDc, 0, contextAttribs);
         THROW_IF(mRc, "wglCreateContextAttribsARB");
-        THROW_IF(wglMakeCurrent(NULL, NULL),
-                 "wglMakeCurrent fail, message: " << Error::GetWin32String());
-        THROW_IF(wglDeleteContext(rc_1_0),
-                 "wglDeleteContext fail, message: " << Error::GetWin32String());
-        THROW_IF(wglMakeCurrent(mDc, mRc),
-                 "wglMakeCurrent fail, message: " << Error::GetWin32String());
+        THROW_IF(wglMakeCurrent(NULL, NULL), "wglMakeCurrent fail: " << Error::GetWin32String());
+        THROW_IF(wglDeleteContext(rc_1_0), "wglDeleteContext fail: " << Error::GetWin32String());
+        THROW_IF(wglMakeCurrent(mDc, mRc), "wglMakeCurrent fail: " << Error::GetWin32String());
 
         if (strstr(wglGetExtensionsStringEXT(), "WGL_EXT_swap_control") != nullptr) {
             QUERY_GL_FN(wglSwapIntervalEXT, "wglSwapIntervalEXT");
@@ -425,7 +421,7 @@ struct PsIn {
 };
 
 struct PsOut {
-    float4 color : SV_TARGET0;   
+    float4 color : SV_TARGET0;
 };
 
 Texture2D texY : register(t0);
@@ -511,7 +507,7 @@ struct PsIn {
 };
 
 struct PsOut {
-    float4 color : SV_TARGET0;   
+    float4 color : SV_TARGET0;
 };
 
 Texture2D texY : register(t0);
@@ -557,8 +553,6 @@ PsOut main(PsIn psIn) {
     mDevCtx->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     ID3D11SamplerState* samplers[] = {mSampler.Get()};
     mDevCtx->PSSetSamplers(0, 1, samplers);
-
-    // THROW_IF(0, "unit test");
 }
 
 Dx11Render::~Dx11Render() {}

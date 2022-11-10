@@ -96,12 +96,12 @@ public class FrontThread extends Application {
                 }
             }
             // clang-format off
-            log_info("current config:\nbit rate: " + cfg.bit_rate
-                    + "\ni frame interval: " + cfg.i_frame_interval
-                    + "\nport: " + cfg.port
-                    + "\nbroadcast port: " + cfg.broadcast_port
-                    + "\ndebug print encode: " + cfg.debug_print_encode
-                    + "\ndebug print net: " + cfg.debug_print_net);
+            log_info("current config:\n- bit rate: " + cfg.bit_rate
+                    + "m\n- i frame interval: " + cfg.i_frame_interval
+                    + "s\n- port: " + cfg.port
+                    + "\n- broadcast port: " + cfg.broadcast_port
+                    + "\n- debug print encode: " + cfg.debug_print_encode
+                    + "\n- debug print net: " + cfg.debug_print_net);
             // clang-format on
 
             BackThread backThread = new BackThread(mediaProj);
@@ -227,7 +227,7 @@ public class FrontThread extends Application {
             int r;
             try {
                 r = Integer.parseInt(setting.substring(prefixLen));
-            } catch (NumberFormatException e) {
+            } catch (Exception e) {
                 throw new Error("parse setting fail, not integer, check: " + setting);
             }
             if (r < min || r > max) {
