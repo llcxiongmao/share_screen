@@ -26,11 +26,11 @@ public:
      * @param frame frame to decode.
      * @throws Error if this closed.
      */
-    void notifyNewFrame(std::unique_ptr<NetFrame>& frame) {
+    void notifyDecodeFrame(std::unique_ptr<NetFrame>& frame) {
         THROW_IF(mPendingFrames.pushEx(frame), "decode thread already closed");
     }
 
-    /** close thread, after call notifyRecyclePaintFrame notifyNewFrame will throw Error.  */
+    /** close thread, after call notifyRecyclePaintFrame notifyDecodeFrame will throw Error.  */
     void close() {
         mFreePaintFrames.close();
         mPendingFrames.close();
@@ -42,7 +42,7 @@ public:
     }
 
 private:
-    /** unit test simulazte options. */
+    /** unit test simulate options. */
     static constexpr bool UT_FAIL_INIT_RESOURCES = false;
     static constexpr bool UT_FAIL_DECODE = false;
 

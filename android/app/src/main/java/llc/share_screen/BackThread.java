@@ -19,7 +19,6 @@ import androidx.annotation.NonNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 /** back thread, handle receive mediacodec result. */
 public class BackThread {
@@ -230,7 +229,7 @@ public class BackThread {
             frame.headerBuffer.putLong(4, pts);
             frame.bodyBuffer = codec.getOutputBuffer(index);
             try {
-                NetThread.GetSingleton().notifyNewFrame(frame);
+                NetThread.GetSingleton().notifyWriteFrame(frame);
             } catch (Exception e) {
                 FrontThread.GetSingleton().notifyErrLog(e.getMessage());
                 mFreeFrames.add(frame);

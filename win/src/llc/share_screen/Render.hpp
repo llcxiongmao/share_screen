@@ -161,6 +161,10 @@ private:
     ComPtr<ID3D11Texture2D> mImg_Nv12;
     ComPtr<ID3D11ShaderResourceView> mTex_Y_Nv12;
     ComPtr<ID3D11ShaderResourceView> mTex_Uv_Nv12;
+
+    // ComPtr<ID3D11Query> mQ0;
+    // ComPtr<ID3D11Query> mQ1;
+    // ComPtr<ID3D11Query> mQ2;
 };
 }  // namespace share_screen
 }  // namespace llc

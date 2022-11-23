@@ -26,4 +26,5 @@ public class Config {
     int broadcast_port = 1413;
     boolean debug_print_encode = false;
     boolean debug_print_net = false;
+    boolean debug_print_write_start_stop = false;
 }

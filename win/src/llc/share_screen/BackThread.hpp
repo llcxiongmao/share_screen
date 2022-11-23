@@ -38,7 +38,7 @@ public:
     }
 
 private:
-    /** unit test simulazte options. */
+    /** unit test simulate options. */
     static constexpr bool UT_FAIL_CREATE = false;
     static constexpr bool UT_FAIL_INIT_RESOURCES = false;
     static constexpr bool UT_FAIL_RECYCLE_NET_FRAME = false;

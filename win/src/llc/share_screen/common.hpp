@@ -340,13 +340,15 @@ struct Config : util::Singleton<Config> {
     /** disable high precision time. */
     bool disableHighPrecisionTime = false;
     /** force use gl render, also disable hardwrae accel. */
-    bool useGlRender = false;
+    bool useGlRender = true;
     /** print net info. */
     bool debugPrintNet = false;
     /** print pts info. */
     bool debugPrintPts = false;
     /** print decode info. */
     bool debugPrintDecode = false;
+    /** print when read start/stop. */
+    bool debugPrintReadStartStop = false;
 };
 }  // namespace share_screen
 }  // namespace llc
@@ -397,7 +399,7 @@ constexpr util::StringView extract_fn_name(const char* str) {
 
 #define LLC_SHARE_SCREEN_VERSION_MAJOR 1
 #define LLC_SHARE_SCREEN_VERSION_MINOR 0
-#define LLC_SHARE_SCREEN_VERSION_PATCH 0
+#define LLC_SHARE_SCREEN_VERSION_PATCH 1
 
 // clang-format off
 #define LLC_SHARE_SCREEN_VERSION_NAME \

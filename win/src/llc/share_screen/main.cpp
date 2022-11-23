@@ -40,6 +40,8 @@ static std::unique_ptr<Config> parse_config(int argc, char* argv[]) {
             cfg->debugPrintPts = true;
         } else if (strcmp(argv[i], "-debug-print-decode") == 0) {
             cfg->debugPrintDecode = true;
+        } else if (strcmp(argv[i], "-debug-print-read-start-stop") == 0) {
+            cfg->debugPrintReadStartStop = true;
         } else {
             THROW_IF(0, "unknown command line arg, check: " << argv[i]);
             return 0;
@@ -53,10 +55,7 @@ static std::unique_ptr<Config> parse_config(int argc, char* argv[]) {
              << "\n- immedlately paint: " << util::fmt_bool(cfg->immediatelyPaint)
              << "\n- disable hardware accel: " << util::fmt_bool(cfg->disableHwaccel)
              << "\n- disable high precision time: " << util::fmt_bool(cfg->disableHighPrecisionTime)
-             << "\n- use gl render: " << util::fmt_bool(cfg->useGlRender)
-             << "\n- debug print net: " << util::fmt_bool(cfg->debugPrintNet)
-             << "\n- debug print pts: " << util::fmt_bool(cfg->debugPrintPts)
-             << "\n- debug print decode: " << util::fmt_bool(cfg->debugPrintDecode);
+             << "\n- use gl render: " << util::fmt_bool(cfg->useGlRender);
     // clang-format on
     return cfg;
 }
@@ -128,5 +127,7 @@ int main(int argc, char* argv[]) {
     decodeThread = nullptr;
     ptsThread = nullptr;
     frontThread = nullptr;
+
+    // system("pause");
     return 0;
 }
