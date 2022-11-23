@@ -92,7 +92,7 @@ public class NetThread {
      * @param frame frame to write.
      * @throws Error if this closed, see {@link #close}.
      */
-    public void notifyNewFrame(Frame frame) throws Error {
+    public void notifyWriteFrame(Frame frame) throws Error {
         synchronized (mCloseLock) {
             if (mIsClose)
                 throw new Error("net thread already close");
@@ -103,7 +103,7 @@ public class NetThread {
         mSelector.wakeup();
     }
 
-    /** close thread, after call notifyNewFrame will throw Error. */
+    /** close thread, after call notifyWriteFrame will throw Error. */
     public void close() {
         synchronized (mCloseLock) {
             if (!mIsClose) {
@@ -164,8 +164,11 @@ public class NetThread {
                     mSelector.select();
                     if (mCurrentFrame == null) {
                         mCurrentFrame = popFrame();
-                        if (mCurrentFrame != null)
+                        if (mCurrentFrame != null) {
+                            if (Config.GetSingleton().debug_print_write_start_stop)
+                                FrontThread.GetSingleton().notifyInfoLog("start write");
                             mClientKey.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+                        }
                     }
                 }
 
@@ -311,8 +314,12 @@ public class NetThread {
 
             mCurrentFrame = popFrame();
             // stop write if no frame.
-            if (mCurrentFrame == null)
+            if (mCurrentFrame == null) {
+                if (Config.GetSingleton().debug_print_write_start_stop)
+                    FrontThread.GetSingleton().notifyInfoLog("stop write");
                 mClientKey.interestOps(SelectionKey.OP_READ);
+            }
+
 
             if (UT_FAIL_WRITE)
                 throw new Error("unit test");

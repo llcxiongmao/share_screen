@@ -91,6 +91,8 @@ public class FrontThread extends Application {
                     cfg.debug_print_encode = true;
                 } else if (s.equals("-debug-print-net")) {
                     cfg.debug_print_net = true;
+                } else if (s.equals("-debug-print-write-start-stop")) {
+                    cfg.debug_print_write_start_stop = true;
                 } else {
                     throw new Error("unknown setting");
                 }

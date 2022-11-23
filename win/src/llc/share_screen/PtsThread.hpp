@@ -12,16 +12,16 @@ public:
     ~PtsThread() {}
 
     /**
-     * push frame to pending list, take frame ownership if success, otherwise throw Error.
+     * notify sync frame, take frame ownership if success, otherwise throw Error.
      *
      * @param frame frame to push.
      * @throws Error if this closed, see #close.
      */
-    void notifyNewFrame(std::unique_ptr<PaintFrame>& frame) {
+    void notifySyncFrame(std::unique_ptr<PaintFrame>& frame) {
         THROW_IF(mPendingFrames.pushEx(frame), "pts thread already closed");
     }
 
-    /** close thread. after call notifyNewFrame will throw Error. */
+    /** close thread. after call notifySyncFrame will throw Error. */
     void close() {
         mPendingFrames.close();
     }

@@ -81,7 +81,7 @@ void BackThread::onRecycleNetFrame(uv_async_t* handle) {
         mCurrentFrame = std::move(frame);
         mReadStage = ReadStage::HEAD;
         mReadSize = 0;
-        if (Config::GetSingleton()->debugPrintNet)
+        if (Config::GetSingleton()->debugPrintReadStartStop)
             log::i() << "start read";
         THROW_IF_UV(uv_read_start((uv_stream_t*)pClientSocket,
                                   [](uv_handle_t* handle, size_t suggestedSize, uv_buf_t* buf) {
@@ -240,14 +240,14 @@ void BackThread::onRead(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
                 if (Config::GetSingleton()->debugPrintNet)
                     log::i() << "read body, pts: " << mCurrentFrame->pts;
 
-                DecodeThread::GetSingleton()->notifyNewFrame(mCurrentFrame);
+                DecodeThread::GetSingleton()->notifyDecodeFrame(mCurrentFrame);
 
                 mCurrentFrame = obtainNetFrame();
                 if (mCurrentFrame) {
                     mReadStage = ReadStage::HEAD;
                     mReadSize = 0;
                 } else {
-                    if (Config::GetSingleton()->debugPrintNet)
+                    if (Config::GetSingleton()->debugPrintReadStartStop)
                         log::i() << "stop read";
                     THROW_IF_UV(uv_read_stop((uv_stream_t*)pClientSocket));
                 }

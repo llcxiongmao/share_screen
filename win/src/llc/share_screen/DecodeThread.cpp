@@ -116,7 +116,7 @@ void DecodeThread::run() {
                 }
                 av_packet_unref(mCachePacket.get());
                 if (PtsThread::GetSingleton())
-                    PtsThread::GetSingleton()->notifyNewFrame(dst);
+                    PtsThread::GetSingleton()->notifySyncFrame(dst);
                 else
                     FrontThread::GetSingleton()->notifyPaintFrame(dst);
             }

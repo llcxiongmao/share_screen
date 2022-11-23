@@ -550,6 +550,13 @@ PsOut main(PsIn psIn) {
     samplerDesc.MaxLOD = 100000;
     THROW_IF_DX11(mDev->CreateSamplerState(&samplerDesc, &mSampler));
 
+    // D3D11_QUERY_DESC queryDesc = {};
+    // queryDesc.Query = D3D11_QUERY_TIMESTAMP_DISJOINT;
+    // mDev->CreateQuery(&queryDesc, &mQ0);
+    // queryDesc.Query = D3D11_QUERY_TIMESTAMP;
+    // mDev->CreateQuery(&queryDesc, &mQ1);
+    // mDev->CreateQuery(&queryDesc, &mQ2);
+
     mDevCtx->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     ID3D11SamplerState* samplers[] = {mSampler.Get()};
     mDevCtx->PSSetSamplers(0, 1, samplers);
@@ -561,6 +568,9 @@ void Dx11Render::paint(PaintFrame* frame) {
     // not paint if minimum.
     if (mWinW == 0 || mWinH == 0)
         return;
+
+    // mDevCtx->Begin(mQ0.Get());
+    // mDevCtx->End(mQ1.Get());
 
     if (frame) {
         AVFrame* decodeF = frame->decodeFrame.get();
@@ -648,6 +658,25 @@ void Dx11Render::paint(PaintFrame* frame) {
             assert(0);
             break;
     }
+
+    // mDevCtx->End(mQ2.Get());
+    // mDevCtx->End(mQ0.Get());
+
+    // D3D11_QUERY_DATA_TIMESTAMP_DISJOINT qd = {};
+    // while (mDevCtx->GetData(mQ0.Get(), &qd, sizeof(qd), 0) != S_OK) {
+    // }
+    // uint64_t tpStart = 0;
+    // while (mDevCtx->GetData(mQ1.Get(), &tpStart, sizeof(tpStart), 0) != S_OK) {
+    // }
+    // uint64_t tpEnd = 0;
+    // while (mDevCtx->GetData(mQ2.Get(), &tpEnd, sizeof(tpEnd), 0) != S_OK) {
+    // }
+    // if (!qd.Disjoint) {
+    //     log::i() << "timestamp: " << (static_cast<double>(tpEnd - tpStart) / qd.Frequency) *
+    //     1000;
+    // } else {
+    //     log::i() << "timestamp: disjoint";
+    // }
 
     mSwapChain->Present(0, 0);
 }

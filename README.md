@@ -1,4 +1,4 @@
-# share screen(v1.0.0)
+# share screen(v1.0.1)
 this project inspire by [scrcpy](https://github.com/Genymobile/scrcpy), translate android screen to desktop window by tcp connection.
 also we have app in android instead of use adb.
 
@@ -7,7 +7,7 @@ also we have app in android instead of use adb.
 - support hardware decode.
 - open source/clear/free.
 
-# Support Devices
+# Support devices
 current test on follow devices:
 
 windows system:
@@ -51,6 +51,16 @@ TODO
 
 # Developers
 TODO
+
+# Known problems
+- when hardware accel used, bring large delay(~100ms). i don't known why,
+have no idea to solve it. so in version 1.0.1 use gl render default, no hardware accel default.
+
+# Release historys
+- 1.0.1
+    - switch gl render as default, so hardware accel disable default.
+- 1.0.0
+    - implement features.
 
 # Licence
 MIT License
