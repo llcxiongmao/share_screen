@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">ShareScreen</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="click_return_to_app">Click return app</string>
+    <string name="screen_capture_denied">Screen capture permission denied</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="copy_log">CopyLog</string>
+    <string name="bit_rate">BitRate(Mbps):</string>
+    <string name="i_interval">I-Interval(s):</string>
+    <string name="port">Port:</string>
+    <string name="broadcast_port">BroadcastPort:</string>
+    <string name="other_setting">OtherSetting</string>
+</resources>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_rowWeight="1"
+    android:layout_columnSpan="4"
+    android:columnCount="4"
+    android:padding="6dp"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/label_log"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_rowWeight="1"
+        android:layout_columnSpan="4"
+        android:scrollbars="vertical"
+        android:typeface="monospace" />
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"
+        android:layout_columnSpan="4"
+        android:background="@color/line" />
+
+    <TextView
+        android:id="@+id/label_port"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="1"
+        android:text="@string/port"
+        android:textAlignment="viewEnd"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/edit_port"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="1"
+        android:ems="10"
+        android:inputType="number" />
+
+    <TextView
+        android:id="@+id/label_broadcast_port"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="1"
+        android:text="@string/broadcast_port"
+        android:textAlignment="viewEnd"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/edit_broadcast_port"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="1"
+        android:ems="10"
+        android:inputType="number" />
+
+    <TextView
+        android:id="@+id/label_bit_rate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="1"
+        android:text="@string/bit_rate"
+        android:textAlignment="viewEnd"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/edit_bit_rate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="1"
+        android:ems="10"
+        android:inputType="number" />
+
+    <TextView
+        android:id="@+id/label_i_interval"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="1"
+        android:text="@string/i_interval"
+        android:textAlignment="viewEnd"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/edit_i_interval"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="1"
+        android:ems="10"
+        android:inputType="number" />
+
+    <LinearLayout
+        android:id="@+id/group_other_setting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="4"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/check_debug_encode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="debug encode" />
+
+        <CheckBox
+            android:id="@+id/check_debug_net"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="debug net" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"
+        android:layout_columnSpan="4"
+        android:background="@color/line" />
+
+    <Button
+        android:id="@+id/but_other_setting"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="2"
+        android:layout_columnWeight="2"
+        android:layout_marginEnd="2dp"
+        android:text="@string/other_setting"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/but_copy_log"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="2"
+        android:layout_columnWeight="2"
+        android:layout_marginStart="2dp"
+        android:text="@string/copy_log"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/but_start"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="2"
+        android:layout_columnWeight="2"
+        android:layout_marginEnd="2dp"
+        android:text="@string/start"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/but_stop"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="2"
+        android:layout_columnWeight="2"
+        android:layout_marginStart="2dp"
+        android:text="@string/stop"
+        android:textAllCaps="false" />
+
+</GridLayout>

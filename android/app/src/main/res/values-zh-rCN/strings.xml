@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">共享屏幕</string>
+    <string name="start">开始</string>
+    <string name="port">端口：</string>
+    <string name="stop">停止</string>
+    <string name="click_return_to_app">点击返回应用</string>
+    <string name="screen_capture_denied">录屏权限被拒绝</string>
+    <string name="ok">确认</string>
+    <string name="cancel">取消</string>
+    <string name="copy_log">复制日志</string>
+    <string name="bit_rate">码率（Mbps）：</string>
+    <string name="i_interval">I帧间隔（s）：</string>
+    <string name="broadcast_port">广播端口：</string>
+    <string name="other_setting">其他设置</string>
+</resources>

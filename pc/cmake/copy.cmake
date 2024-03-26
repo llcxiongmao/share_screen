@@ -1,0 +1,6 @@
+if (NOT EXISTS "${CMAKE_ARGV5}/${CMAKE_ARGV3}")
+    file(COPY "${CMAKE_ARGV4}/${CMAKE_ARGV3}" DESTINATION "${CMAKE_ARGV5}" FOLLOW_SYMLINK_CHAIN)
+    message(STATUS "copy: ${CMAKE_ARGV4}/${CMAKE_ARGV3} -> ${CMAKE_ARGV5}")
+else()
+    # message(STATUS "exist: ${CMAKE_ARGV4}/${CMAKE_ARGV3} -> ${CMAKE_ARGV5}")
+endif()

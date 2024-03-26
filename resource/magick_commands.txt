@@ -1,0 +1,17 @@
+magick convert -define icon:auto-resize="256,128,96,64,48,32,24,16" -background none 1.svg 1.ico
+magick identify 1.ico
+
+magick convert -background none -size 16x16 1.svg icns_set/icon_16x16.png
+magick convert -background none -size 32x32 1.svg icns_set/icon_32x32.png
+magick convert -background none -size 64x64 1.svg icns_set/icon_64x64.png
+magick convert -background none -size 128x128 1.svg icns_set/icon_128x128.png
+magick convert -background none -size 256x256 1.svg icns_set/icon_256x256.png
+magick convert -background none -size 512x512 1.svg icns_set/icon_512x515.png
+magick convert -background none -size 32x32 1.svg icns_set/icon_16x16@2x.png
+magick convert -background none -size 64x64 1.svg icns_set/icon_32x32@2x.png
+magick convert -background none -size 128x128 1.svg icns_set/icon_64x64@2x.png
+magick convert -background none -size 256x256 1.svg icns_set/icon_128x128@2x.png
+magick convert -background none -size 512x512 1.svg icns_set/icon_256x256@2x.png
+magick convert -background none -size 1024x1024 1.svg icns_set/icon_512x512@2x.png
+
+iconutil -c icns icns_set -o 1.icns

@@ -1,0 +1,1 @@
+cmd /k share_screen.exe
