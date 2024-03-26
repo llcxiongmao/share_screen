@@ -191,12 +191,7 @@ endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_custom_command(TARGET share_screen POST_BUILD COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/copy.cmake"
-        "1.svg"
-        "${CMAKE_CURRENT_SOURCE_DIR}/../resource/"
-        "$<TARGET_FILE_DIR:share_screen>"
-    )
-    add_custom_command(TARGET share_screen POST_BUILD COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/copy.cmake"
-        "create_desktop.sh"
+        "run.sh"
         "${CMAKE_CURRENT_SOURCE_DIR}/../resource/"
         "$<TARGET_FILE_DIR:share_screen>"
     )
