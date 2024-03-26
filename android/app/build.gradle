@@ -26,9 +26,9 @@ android {
             versionCode Integer.parseInt(m.group(2))
         }
 
-        var nowT = new Date().format('yyyyMMddHHmm').toString()
+        var nowT = new Date().format('yyyy.MM.dd.HH.mm').toString()
         buildConfigField "String", "SS_BUILD_TIME", "\"${nowT}\""
-        archivesBaseName = "share_screen(${versionName})_${nowT}"
+        archivesBaseName = "share_screen_${versionName}_${nowT}"
     }
 
     signingConfigs {
