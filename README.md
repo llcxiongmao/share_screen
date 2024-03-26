@@ -10,23 +10,27 @@
 
 # 测试的系统
 安卓端：
-- Android/8.0（荣耀6x）
-- Android/11（红米note 10 pro）
+- Android/8.0（荣耀 6x）
+- Android/11.0（红米 note 10 pro）
 
-所以应该能运行在Android8.0及以上系统。
+所以期待能运行在Android8.0及以上系统。
 
 电脑端：
-- Windows/7/x64
-- Windows/10/x64
-- Ubuntu/20.4/x64
-- Macos/10.13.6/x64
+- Windows
+    - win7/64位
+    - win10/64位
+- Linux
+    - ubuntu-18.04/64位
+    - ubuntu-22.04/64位
+- Macos
+    - 10.13.6/64位
 
-所以应该能运行在：Windows7及以上系统，linux系统，macos系统。
-
-PS：个人精力有限，x86系统不打算测试，默认算不支持，但是代码有可能直接编译在x86上面，所以可能可以运行。
+PS：个人精力有限，32位系统不打算测试，默认算不支持（但是代码可能可以编译）。
 
 # 如何使用
-todo。。。
+电脑端：直接双击运行share_screen即可，也可以运行run.bat/run.sh。
+
+安卓端：点击开始按钮即可。
 
 # 如何编译项目
 电脑端：
