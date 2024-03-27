@@ -33,15 +33,33 @@ PS：个人精力有限，32位系统不打算测试，默认算不支持（但�
 安卓端：点击开始按钮即可。
 
 # 如何编译项目
-电脑端：
+## 电脑端
 
-安卓端：没有任何依赖，直接用Android Studio打开android文件夹编译即可。
+准备
+- windows：visual studio，linux：gcc，macos：xcode，支持c++17即可。
+- Cmake > 3.20。
+- 编译ffmpeg，源码包位于`share_screen/pc/3rd/ffmpeg-5.1.1.tar.bz2`，具体参考：[ffmpeg](./doc/ffmpeg.md)。
+
+直接用cmake生成项目文件即可，假设：
+- 本项目路径为：/my/share_screen
+- 编译路径为：/my/share_screen/pc/build/
+- ffmpeg安装路径为：/my/3rd/ffmpeg/
+
+`cmake -DFFMPEG_INSTALL_PATH=/my/3rd/ffmpeg/ -S /my/share_screen/pc -B /my/share_screen/pc/build/`
+
+`cmake --build /my/share_screen/pc/build/ --config RelWithDbgInfo`
+
+## 安卓端
+没有任何依赖，直接用Android Studio打开`share_screen/android`文件夹编译即可。
+
+# 开发者
+TUDO...
 
 # 已知问题
 
 # 发布历史
 - 1.0.0
-    - 项目主体功能完成。
+    - 项目主体完成。
 
 # 许可证（MIT）
 MIT License
