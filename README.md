@@ -1,6 +1,6 @@
 # 共享屏幕（v1.0.0）
-这个项目启发自：[scrcpy](https://github.com/Genymobile/scrcpy)，把安卓屏幕共享到电脑上。
-和scrcpy不同的是，我们在安卓平台上通过app运行(安卓5.0开始开放录屏权限)，而不是通过adb连接。
+本项目启发自：[scrcpy](https://github.com/Genymobile/scrcpy)，把安卓屏幕共享到电脑上。
+和scrcpy不同的是，我们在安卓平台上通过app运行(安卓5.0开始开放录屏权限)，而不是通过adb。
 所以只有屏幕是共享的，无法模拟触屏点击事件（安卓系统没有开放此权限）。
 
 # 特点
@@ -28,14 +28,16 @@
 PS：个人精力有限，32位系统不打算测试，默认算不支持（但是代码可能可以编译）。
 
 # 如何使用
-电脑端：直接双击运行share_screen即可，也可以运行run.bat/run.sh。
+电脑端：直接双击运行share_screen即可，也可以运行run.bat/run.sh。命令行参数如下：
+- -ip=[addr]，手动连接地址，示例：-ip=192.168.1.1。
+- -port=[port]，连接端口，示例：-port=1314。
+- -broadcast-port=[port]，广播端口，示例：-broadcast-port=1413。
+- -immediately-paint，开启立即模式。
 
 安卓端：点击开始按钮即可。
 
 # 如何编译项目
-电脑端：
-
-准备
+电脑端：准备
 - windows：visual studio，linux：gcc，macos：xcode，支持c++17即可。
 - Cmake > 3.20。
 - 编译ffmpeg，源码包位于`share_screen/pc/3rd/ffmpeg-5.1.1.tar.bz2`，具体参考：[ffmpeg](./doc/ffmpeg.md)。
